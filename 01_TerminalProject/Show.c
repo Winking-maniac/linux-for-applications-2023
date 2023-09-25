@@ -13,14 +13,15 @@
 
 enum
 {
-    TEXT_LEFT_BORDER = 2,
-    TEXT_RIGHT_BORDER = 2,
-    TEXT_UP_BORDER = 2,
-    TEXT_DOWN_BORDER = 1
+    TEXT_LEFT_MARGIN = 2,
+    TEXT_RIGHT_MARGIN = 2,
+    TEXT_UP_MARGIN = 2,
+    TEXT_DOWN_MARGIN = 1,
+    BORDER_WIDTH = 1
 };
 
-#define TEXT_LINES  (LINES - (int)TEXT_UP_BORDER - (int)TEXT_DOWN_BORDER)
-#define TEXT_COLS  (COLS - (int)TEXT_LEFT_BORDER - (int)TEXT_RIGHT_BORDER)
+#define TEXT_LINES  (LINES - (int)TEXT_UP_MARGIN - (int)TEXT_DOWN_MARGIN - 2 * BORDER_WIDTH)
+#define TEXT_COLS  (COLS - (int)TEXT_LEFT_MARGIN - (int)TEXT_RIGHT_MARGIN - 2 * BORDER_WIDTH)
 
 
 
@@ -89,13 +90,15 @@ main(int argc, char**argv)
         exit(5);
     }
     
-    // Initialize colors
+    // Initialize all screen attributes 
     initscr();
     start_color();
     cbreak();
     noecho();
     keypad(stdscr, TRUE);
     curs_set(0);
+
+    // Check color support and initialize colors
     if (has_colors() == FALSE || can_change_color() == FALSE) {
         endwin();
         printf("Your terminal does not support color\n");
@@ -106,10 +109,9 @@ main(int argc, char**argv)
     init_pair(2, COLOR_WHITE, COLOR_BLACK);
     
     // Initialize main window, print box and file name
-    WINDOW *text_win = newwin(TEXT_LINES, TEXT_COLS, TEXT_UP_BORDER, TEXT_LEFT_BORDER);
+    WINDOW *text_win = newwin(TEXT_LINES + 2 * BORDER_WIDTH, TEXT_COLS + 2 * BORDER_WIDTH, TEXT_UP_MARGIN, TEXT_LEFT_MARGIN);
     box(text_win, 0, 0);
     wattr_set(stdscr, WA_BOLD, COLOR_PAIR(2), NULL);
-    wmove(text_win, (TEXT_LINES-5)/2 - 1, (TEXT_COLS-4)/2 - 4);
    
     wprintw(stdscr, "%s, %d lines, %ld bytes", argv[1], file_lines, sz);
     wrefresh(stdscr);
@@ -124,9 +126,12 @@ main(int argc, char**argv)
 
     for (size_t i = 0; i < sz; ++i) {
         if (file[i] == '\n') {
+            // Print line start
+            // (highlighter can be possibly called there)
             mvwprintw(pad, cur_line, 0, "%.*s", i - prev_line, file + prev_line);
             wmove(pad, cur_line, number_len + 1 + i - prev_line);
             wclrtoeol(pad);
+            // Print line end
             cur_line++; 
             prev_line = i+1;
         }
@@ -141,14 +146,14 @@ main(int argc, char**argv)
         mvwprintw(line_num_pad, i, 0, "%*d ", number_len, i+1);
     
     // Open first view on file
-    prefresh(pad, 0, 0, TEXT_UP_BORDER + 1, TEXT_LEFT_BORDER + 1 + number_len + 2, TEXT_UP_BORDER + TEXT_LINES - 2, TEXT_LEFT_BORDER + TEXT_COLS - 2);
-    prefresh(line_num_pad, 0, 0, TEXT_UP_BORDER + 1, TEXT_LEFT_BORDER + 2, TEXT_UP_BORDER + TEXT_LINES - 2, TEXT_LEFT_BORDER + number_len + 1);
+    prefresh(pad, 0, 0, TEXT_UP_MARGIN + BORDER_WIDTH, TEXT_LEFT_MARGIN + BORDER_WIDTH + number_len + 2, TEXT_UP_MARGIN + TEXT_LINES, TEXT_LEFT_MARGIN + TEXT_COLS);
+    prefresh(line_num_pad, 0, 0, TEXT_UP_MARGIN + BORDER_WIDTH, TEXT_LEFT_MARGIN + BORDER_WIDTH + 1, TEXT_UP_MARGIN + TEXT_LINES, TEXT_LEFT_MARGIN + number_len + BORDER_WIDTH);
     
     // Initialize current position and maximums(minimums are 0)
     int y = 0;
     int x = 0;
-    int max_x = max_line - TEXT_COLS + 2;
-    int max_y = file_lines - TEXT_LINES + 2; 
+    int max_x = max_line - TEXT_COLS;
+    int max_y = file_lines - TEXT_LINES; 
 
     // Start endless loop of scrolling
     while(1) {
@@ -175,9 +180,9 @@ main(int argc, char**argv)
             default:
                 break;
             UPDATE_BOTH:
-                prefresh(line_num_pad, y, 0, TEXT_UP_BORDER + 1, TEXT_LEFT_BORDER + 2, TEXT_UP_BORDER + TEXT_LINES - 2, TEXT_LEFT_BORDER + number_len + 1);            
+                prefresh(line_num_pad, y, 0, TEXT_UP_MARGIN + BORDER_WIDTH, TEXT_LEFT_MARGIN + BORDER_WIDTH + 1, TEXT_UP_MARGIN + TEXT_LINES, TEXT_LEFT_MARGIN + number_len + BORDER_WIDTH);
             UPDATE_TEXT:
-                prefresh(pad, y, x, TEXT_UP_BORDER + 1, TEXT_LEFT_BORDER + 1 + number_len + 2, TEXT_UP_BORDER + TEXT_LINES - 2, TEXT_LEFT_BORDER + TEXT_COLS - 2);
+                prefresh(pad, y, x, TEXT_UP_MARGIN + BORDER_WIDTH, TEXT_LEFT_MARGIN + BORDER_WIDTH + number_len + 2, TEXT_UP_MARGIN + TEXT_LINES, TEXT_LEFT_MARGIN + TEXT_COLS);
         }
     }
     endwin();
