@@ -168,7 +168,8 @@ main(int argc, char**argv)
             case KEY_UP: 
                 y = max(y - 1, 0);
                 goto UPDATE_BOTH;
-            case KEY_DOWN: 
+            case KEY_DOWN:
+            case ' ':
                 y = min(y + 1, max_y);
                 goto UPDATE_BOTH;
             case KEY_NPAGE:
@@ -177,6 +178,9 @@ main(int argc, char**argv)
             case KEY_PPAGE:
                 y = max(y - TEXT_LINES + 2, 0);
                 goto UPDATE_BOTH;
+            case 27:
+                endwin();
+                return 0;
             default:
                 break;
             UPDATE_BOTH:
