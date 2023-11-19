@@ -1,0 +1,18 @@
+5,10c5,8
+< enum {
+<     MAZE_SIZE = 6,
+<     FULL_MAZE_SIZE = 2 * MAZE_SIZE + 1,
+<     ROOMS = MAZE_SIZE * MAZE_SIZE,
+<     PASSES = 2 * MAZE_SIZE * (MAZE_SIZE - 1)
+< };
+---
+> static int MAZE_SIZE;
+> static int FULL_MAZE_SIZE;
+> static int ROOMS;
+> static int PASSES;
+129a128,132
+>     sscanf(argv[1], "%d", &MAZE_SIZE);
+>     FULL_MAZE_SIZE = 2 * MAZE_SIZE + 1;
+>     ROOMS = MAZE_SIZE * MAZE_SIZE;
+>     PASSES = 2 * MAZE_SIZE * (MAZE_SIZE - 1);
+> 

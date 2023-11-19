@@ -1,0 +1,16 @@
+3d2
+< #include <time.h>
+128c127,129
+<     sscanf(argv[2], "%d", &MAZE_SIZE);
+---
+>     int seed;
+>     sscanf(argv[1], "%d", &seed);
+>     sscanf(argv[3], "%d", &MAZE_SIZE);
+133c134
+<     srand(time(NULL));
+---
+>     srand(seed);
+136c137
+<     print(m, argv[1][1], argv[1][0]);
+---
+>     print(m, argv[2][1], argv[2][0]);
