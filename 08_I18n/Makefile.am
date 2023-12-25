@@ -6,7 +6,8 @@ guess.po: guess.pot
 	msgmerge -U $@ $<
 
 guess.pot: guess.c
-	xgettext -k_ -c guess.c -oguess.pot.new
+	touch guess.pot
+	xgettext -k_ -c guess.c -o guess.pot.new
 	msgmerge -U guess.pot guess.pot.new
 	rm guess.pot.new
 
