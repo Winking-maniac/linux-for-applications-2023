@@ -1,0 +1,52 @@
+for num in 3 4; do
+    for i in $(seq 133); do
+        cp input.txt input.copy;
+        rm output
+        strace -e trace=openat -e fault=openat:error=$i:when=$num ./move input.copy output;
+        rc=$?
+        if [ ! -f input.copy -o -f output -o "$rc" != "$i" ]; then
+             exit 1;
+        fi
+    done;
+done;
+
+for i in $(seq 133); do
+    cp input.txt input.copy;
+    rm output
+    strace -e trace=read -e fault=read:error=$i:when=2 ./move input.copy output;
+    rc=$?
+    if [ ! -f input.copy -o -f output -o "$rc" != "$i" ]; then
+         exit 1;
+    fi
+done;
+
+for i in $(seq 133); do
+    cp input.txt input.copy;
+    rm output
+    strace -e trace=write -e fault=write:error=$i:when=1 ./move input.copy output;
+    rc=$?
+    if [ ! -f input.copy -o -f output -o "$rc" != "$i" ]; then
+         exit 1;
+    fi
+done;
+
+for i in $(seq 133); do
+    cp input.txt input.copy;
+    rm output
+    strace -e trace=close -e fault=close:error=$i:when=3 ./move input.copy output;
+    rc=$?
+    if [ ! -f input.copy -o -f output -o "$rc" != "$i" ]; then
+         exit 1;
+    fi
+done;
+
+for i in $(seq 133); do
+    cp input.txt input.copy;
+    rm output
+    strace -e trace=close -e fault=close:error=$i:when=4 ./move input.copy output;
+    rc=$?
+    if [ -f input.copy -o ! -f output -o "$rc" != "$i" ]; then
+         exit 1;
+    fi
+done;
+
