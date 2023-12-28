@@ -1,0 +1,9 @@
+set logging off
+
+b 26
+run 1 12 >/dev/null
+watch i / 5
+c
+info locals
+c
+info locals

@@ -1,0 +1,15 @@
+set logging off
+
+b 26
+b 27
+run -100 100 3 >/dev/null
+set $cnt = 1
+while ($cnt < 28)
+    c
+    set $cnt = $cnt + 1
+end
+while ($cnt <= 35)
+    c
+    info locals
+    set $cnt = $cnt + 1
+end
